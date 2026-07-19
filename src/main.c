@@ -1,8 +1,9 @@
 #include "server/server.h"
 #include <stdio.h>
+#define PORT 8080
 int main(void)
 {
-    int port = 8080;
+    int port = PORT;
     int server_fd = start_server(port);
     if (server_fd < 0)
     {
