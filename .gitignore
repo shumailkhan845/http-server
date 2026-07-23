@@ -1,0 +1,32 @@
+# Build output
+http-server
+build/
+bin/
+
+# Object files
+*.o
+*.obj
+
+# Compiled binaries
+*.out
+*.exe
+
+# Debug files
+*.dSYM/
+*.gdb_history
+
+# CMake files (if used later)
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+
+# VS Code
+.vscode/
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
