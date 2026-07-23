@@ -1,7 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
-
-SRC = src/main.c src/server/server.c 
+CFLAGS = -Wall -Wextra -g -Isrc
+SRC = src/main.c src/server/server.c src/http/http.c src/http/request.c src/http/response.c
 OUT = http-server
 
 all:

@@ -1,4 +1,6 @@
 #include "server.h"
+#include "http/request.h"
+#include "http/response.h"
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -83,17 +85,34 @@ int start_server(int port)
     printf("Recv_result %d\n", recv_result);
     printf("Recived : %s\n", buffer);
 
-    // Implementing the send()
-    char *msg = "Hello from server";
-    int len = strlen(msg);
-    int send_result = send(new_fd, msg, len, 0);
-    if (send_result < 0)
+
+
+
+
+    //Preparing the http request
+    struct http_request request =  parse_http_request(buffer);
+
+    printf("Method : %s\n", request.method);
+    printf("Path : %s\n", request.path);
+    printf("Request : %s\n", request.version);
+
+    /* Preparing the http response */
+
+    struct http_response response = create_http_response();
+
+    /* Serializing the http response */
+    char *data = serilize_http_response(&response);
+
+    printf("Data : %s",data);
+
+
+    int s =  send(new_fd, data, strlen(data), 0);
+    if(s < 0)
     {
         perror("send");
-        close(new_fd);
-        close(sockfd);
         return -1;
     }
+    free(data);
 
     return new_fd;
 }
