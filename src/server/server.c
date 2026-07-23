@@ -1,6 +1,9 @@
 #include "server.h"
 #include "http/request.h"
 #include "http/response.h"
+#include "router/router.h"
+#include "file/file.h"
+
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -95,11 +98,14 @@ int start_server(int port)
     printf("Method : %s\n", request.method);
     printf("Path : %s\n", request.path);
     printf("Request : %s\n", request.version);
-
+    
     /* Preparing the http response */
-
+    const char *filepath = route_request(request.path);
+    printf("Route is : %s\n", filepath);
+    char* body = read_file(filepath);
+    
     struct http_response response = create_http_response();
-
+    response.body = body;
     /* Serializing the http response */
     char *data = serilize_http_response(&response);
 
@@ -113,6 +119,7 @@ int start_server(int port)
         return -1;
     }
     free(data);
+    free(body);
 
     return new_fd;
 }
