@@ -4,7 +4,6 @@
 #include "router/router.h"
 #include "file/file.h"
 
-
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -17,6 +16,7 @@
 
 int start_server(int port)
 {
+
     char ip[INET_ADDRSTRLEN];
 
     // Create the server socket
@@ -54,72 +54,79 @@ int start_server(int port)
         close(sockfd);
         return -1;
     }
-    addr_len = sizeof(client_addr);
-    new_fd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_len);
-    if (new_fd < 0)
+    while (1)
     {
-        perror("accept");
-        close(sockfd);
-        return -1;
-    }
-    inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-    printf("Client IP address: %s\n", ip);
-    printf("Client Port: %d\n", ntohs(client_addr.sin_port));
-    printf("Client Connected\n");
+        addr_len = sizeof(client_addr);
+        new_fd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_len);
+        if (new_fd < 0)
+        {
+            perror("accept");
+            close(sockfd);
+            return -1;
+        }
+        inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
+        printf("Client IP address: %s\n", ip);
+        printf("Client Port: %d\n", ntohs(client_addr.sin_port));
+        printf("Client Connected\n");
 
-    // Impelmenting the recv
-    char buffer[1024];
-    int recv_result = recv(new_fd, buffer, sizeof(buffer), 0);
-    if (recv_result < 0)
-    {
-        perror("recv");
+        // Impelmenting the recv
+        char buffer[1024];
+        int recv_result = recv(new_fd, buffer, sizeof(buffer), 0);
+        if (recv_result < 0)
+        {
+            perror("recv");
+            close(new_fd);
+            close(sockfd);
+            return -1;
+        }
+        else if (recv_result == 0)
+        {
+            printf("Connection closed\n");
+            close(new_fd);
+            close(sockfd);
+            return -1;
+        }
+        buffer[recv_result - 1] = '\0';
+        // printf("Recv_result %d\n", recv_result);
+        // printf("Recived : %s\n", buffer);
+
+        // Preparing the http request
+        struct http_request request = parse_http_request(buffer);
+
+        printf("Method : %s\n", request.method);
+        printf("Path : %s\n", request.path);
+        printf("Request : %s\n", request.version);
+
+        /* Preparing the http response */
+        struct http_response response;
+        const char *filepath = route_request(request.path);
+        if (filepath == NULL)
+        {
+            filepath = "public/404.html";
+            response = create_http_response(404);
+        }
+        else
+        {
+            response = create_http_response(200);
+        }
+        printf(" File path : %s\n", filepath);
+        char *body = read_file(filepath);
+        response.body = body;
+        /* Serializing the http response */
+        char *data = serilize_http_response(&response);
+
+        // printf("Data : %s", data);
+
+        int s = send(new_fd, data, strlen(data), 0);
+        if (s < 0)
+        {
+            perror("send");
+            return -1;
+        }
+        free(data);
+        free(body);
         close(new_fd);
-        close(sockfd);
-        return -1;
     }
-    else if (recv_result == 0)
-    {
-        printf("Connection closed\n");
-        close(new_fd);
-        close(sockfd);
-        return -1;
-    }
-    buffer[recv_result - 1] = '\0';
-    printf("Recv_result %d\n", recv_result);
-    printf("Recived : %s\n", buffer);
-
-
-
-
-
-    //Preparing the http request
-    struct http_request request =  parse_http_request(buffer);
-
-    printf("Method : %s\n", request.method);
-    printf("Path : %s\n", request.path);
-    printf("Request : %s\n", request.version);
-    
-    /* Preparing the http response */
-    const char *filepath = route_request(request.path);
-    printf("Route is : %s\n", filepath);
-    char* body = read_file(filepath);
-    
-    struct http_response response = create_http_response();
-    response.body = body;
-    /* Serializing the http response */
-    char *data = serilize_http_response(&response);
-
-    printf("Data : %s",data);
-
-
-    int s =  send(new_fd, data, strlen(data), 0);
-    if(s < 0)
-    {
-        perror("send");
-        return -1;
-    }
-    free(data);
-    free(body);
-
-    return new_fd;
+    close(sockfd);
+    return -1;
 }

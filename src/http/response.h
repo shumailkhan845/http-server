@@ -14,7 +14,7 @@ struct http_response
 
     char *body;
 };
-struct http_response create_http_response(void);
+struct http_response create_http_response(int status);
 char *serilize_http_response(struct http_response *response);
 
 

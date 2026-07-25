@@ -4,13 +4,11 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-struct http_response create_http_response(void)
+struct http_response create_http_response(int status)
 {
     struct http_response response;
 
-    response.status_code = 200;
-    response.body = "<html><h1>I am from C server</h1></html>";
-
+    response.status_code = status;
     return response;
 }
 
