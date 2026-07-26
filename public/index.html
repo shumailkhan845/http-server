@@ -3,31 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My HTTP Server</title>
+    <title>HTTP Server</title>
+
+    <link rel="stylesheet" href="/css/style.css">
 </head>
-
 <body>
-    <h1>Hello from my HTTP Server</h1>
 
-    <p>
-        This page is being served by a custom HTTP server
-        written in C.
-    </p>
+    <div class="container">
+        <h1>Custom HTTP Server</h1>
 
-    <hr>
+        <p>
+            This page is served by a custom HTTP server written entirely in C.
+        </p>
 
-    <h2>Server Features</h2>
+        <div class="card">
+            <h2>Features</h2>
 
-    <ul>
-        <li>TCP socket handling</li>
-        <li>HTTP request parsing</li>
-        <li>URL routing</li>
-        <li>Static file serving</li>
-        <li>HTTP response generation</li>
-    </ul>
+            <ul>
+                <li>TCP Socket Programming</li>
+                <li>HTTP Request Parsing</li>
+                <li>HTTP Response Serialization</li>
+                <li>URL Routing</li>
+                <li>Static File Serving</li>
+                <li>MIME Type Detection</li>
+            </ul>
+        </div>
 
-    <p>
-        Built from scratch using C and POSIX socket APIs.
-    </p>
+        <footer>
+            Built from scratch using C and POSIX sockets.
+        </footer>
+    </div>
+
 </body>
 </html>

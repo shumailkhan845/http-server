@@ -3,6 +3,7 @@
 #include "http/response.h"
 #include "router/router.h"
 #include "file/file.h"
+#include "mime/mime.h"
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -112,6 +113,7 @@ int start_server(int port)
         printf(" File path : %s\n", filepath);
         char *body = read_file(filepath);
         response.body = body;
+        response.content_type = get_mime_type(filepath);;
         /* Serializing the http response */
         char *data = serilize_http_response(&response);
 
@@ -125,6 +127,7 @@ int start_server(int port)
         }
         free(data);
         free(body);
+        free(filepath);
         close(new_fd);
     }
     close(sockfd);

@@ -23,16 +23,19 @@ char *serilize_http_response(struct http_response *response)
         response->reason_phrase = "Page not found";
     }
     char *data = malloc(1024);
+
     sprintf(
-        data,
-        "HTTP/1.1 %d %s\r\n"
-        "Content-Type: text/html\r\n"
-        "Content-Length: %ld\r\n"
-        "\r\n"
-        "%s",
-        response->status_code,
-        response->reason_phrase,
-        strlen(response->body),
-        response->body);
+    data,
+    "HTTP/1.1 %d %s\r\n"
+    "Content-Type: %s\r\n"
+    "Content-Length: %ld\r\n"
+    "\r\n"
+    "%s",
+    response->status_code,
+    response->reason_phrase,
+    response->content_type,
+    strlen(response->body),
+    response->body
+);
     return data;
 }

@@ -1,16 +1,35 @@
 #include "router.h"
+
+#include <stdlib.h>
 #include <string.h>
-const char *route_request(const char *path)
+#include <stdio.h>
+
+char *route_request(const char *path)
 {
-    if(strcmp(path, "/") == 0)
+    char *filepath = NULL;
+
+    if (strcmp(path, "/") == 0)
     {
-        return "public/index.html";
+        filepath = malloc(strlen("public/index.html") + 1);
+        if (filepath == NULL)
+        {
+            return NULL;
+        }
+
+        strcpy(filepath, "public/index.html");
+        return filepath;
     }
-    
-    if(strcmp(path, "/about") == 0)
+
+    size_t len = strlen("public") + strlen(path) + 1;
+
+    filepath = malloc(len);
+    if (filepath == NULL)
     {
-        return "public/about.html";
+        return NULL;
     }
-    
-    return NULL;
+
+    strcpy(filepath, "public");
+    strcat(filepath, path);
+
+    return filepath;
 }
