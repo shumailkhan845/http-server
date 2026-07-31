@@ -87,7 +87,7 @@ int start_server(int port)
             close(sockfd);
             return -1;
         }
-        buffer[recv_result - 1] = '\0';
+        buffer[recv_result] = '\0';
         // printf("Recv_result %d\n", recv_result);
         // printf("Recived : %s\n", buffer);
 
@@ -97,7 +97,7 @@ int start_server(int port)
         printf("Method : %s\n", request.method);
         printf("Path : %s\n", request.path);
         printf("Request : %s\n", request.version);
-
+        
         /* Preparing the http response */
         struct http_response response;
         const char *filepath = route_request(request.path);
@@ -110,7 +110,7 @@ int start_server(int port)
         {
             response = create_http_response(200);
         }
-        printf(" File path : %s\n", filepath);
+        printf("File path : %s\n", filepath);
         char *body = read_file(filepath);
         response.body = body;
         response.content_type = get_mime_type(filepath);;
