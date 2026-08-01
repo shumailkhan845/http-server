@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#define PUBLIC_DIR "public"
 char *route_request(const char *path)
 {
     char *filepath = NULL;
@@ -20,7 +21,7 @@ char *route_request(const char *path)
         return filepath;
     }
 
-    size_t len = strlen("public") + strlen(path) + 1;
+    size_t len = strlen(PUBLIC_DIR) + strlen(path) + 1;
 
     filepath = malloc(len);
     if (filepath == NULL)
@@ -28,7 +29,7 @@ char *route_request(const char *path)
         return NULL;
     }
 
-    strcpy(filepath, "public");
+    strcpy(filepath, PUBLIC_DIR);
     strcat(filepath, path);
 
     return filepath;
