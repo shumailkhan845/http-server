@@ -12,7 +12,7 @@ struct http_response create_http_response(int status)
     return response;
 }
 
-char *serilize_http_response(struct http_response *response)
+char *serilize_http_header(struct http_response *response)
 {
     if (response->status_code == 200)
     {
@@ -22,20 +22,25 @@ char *serilize_http_response(struct http_response *response)
     {
         response->reason_phrase = "Page not found";
     }
-    char *data = malloc(1024);
+    char *header = malloc(1024);
+    if (header == NULL)
+    {
+        perror("malloc");
+        return NULL;
+    }
 
     sprintf(
-    data,
-    "HTTP/1.1 %d %s\r\n"
-    "Content-Type: %s\r\n"
-    "Content-Length: %ld\r\n"
-    "\r\n"
-    "%s",
-    response->status_code,
-    response->reason_phrase,
-    response->content_type,
-    strlen(response->body),
-    response->body
-);
-    return data;
+        header,
+        "HTTP/1.1 %d %s\r\n"
+        "Content-Type: %s\r\n"
+        "Content-Length: %zu\r\n"
+        "\r\n",
+        response->status_code,
+        response->reason_phrase,
+        response->content_type,
+        response->content_length);
+
+    return header;
 }
+
+

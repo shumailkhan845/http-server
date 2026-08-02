@@ -1,19 +1,23 @@
 #include "file.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-char *read_file(const char *filepath)
+#include <string.h>
+struct file_data read_file(const char *filepath)
 {
-    FILE *f_ptr = fopen(filepath, "r");
+
+    struct file_data file = {0};
+    FILE *f_ptr = fopen(filepath, "rb");
     if (f_ptr == NULL)
     {
-        return NULL;
+        return file;
     }
     fseek(f_ptr, 0, SEEK_END);
     long file_size = ftell(f_ptr);
     if (file_size < 0)
     {
         fclose(f_ptr);
-        return NULL;
+        return file;
     }
     rewind(f_ptr);
 
@@ -22,16 +26,20 @@ char *read_file(const char *filepath)
     {
         perror("Memory allocation failed");
         fclose(f_ptr);
-        return NULL;
+        return file;
     }
-    int bytesRead = fread(content, 1, file_size, f_ptr);
-    if (bytesRead != file_size)
+    size_t bytesRead = fread(content, 1, file_size, f_ptr);
+    if (bytesRead != (size_t)file_size)
     {
         free(content);
         fclose(f_ptr);
-        return NULL;
+        return file;
     }
     content[bytesRead] = '\0';
     fclose(f_ptr);
-    return content;
+    file.data = content;
+    file.size = file_size;
+    printf("File size = %ld\n", file_size);
+    printf("Bytes read = %zu\n", bytesRead);
+    return file;
 }

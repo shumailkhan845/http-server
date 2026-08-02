@@ -97,7 +97,7 @@ int start_server(int port)
         printf("Method : %s\n", request.method);
         printf("Path : %s\n", request.path);
         printf("Request : %s\n", request.version);
-        
+
         /* Preparing the http response */
         struct http_response response;
         const char *filepath = route_request(request.path);
@@ -111,21 +111,35 @@ int start_server(int port)
             response = create_http_response(200);
         }
         printf("File path : %s\n", filepath);
-        char *body = read_file(filepath);
-        response.body = body;
-        response.content_type = get_mime_type(filepath);;
-        /* Serializing the http response */
-        char *data = serilize_http_response(&response);
+        // Defining the structure of the file.h
+        struct file_data file = {0};
+
+        file = read_file(filepath);
+        response.body = file.data;
+        response.content_type = get_mime_type(filepath);
+        response.content_length = file.size;
+        /* Serializing the http headers */
+        char *header = serilize_http_header(&response);
+
+
 
         // printf("Data : %s", data);
 
-        int s = send(new_fd, data, strlen(data), 0);
-        if (s < 0)
+        int s_headers = send(new_fd, header, strlen(header), 0);
+        if (s_headers < 0)
         {
             perror("send");
             return -1;
         }
-        free(data);
+        /* Serializing the http body */
+
+        int s_body = send(new_fd, response.body, response.content_length, 0);
+        if (s_body < 0)
+        {
+            perror("send");
+            return -1;
+        }
+        free(header);
         free(body);
         free(filepath);
         close(new_fd);
