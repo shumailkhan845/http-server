@@ -4,6 +4,7 @@
 #include "router/router.h"
 #include "file/file.h"
 #include "mime/mime.h"
+#include "logger/logger.h"
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -121,8 +122,6 @@ int start_server(int port)
         /* Serializing the http headers */
         char *header = serilize_http_header(&response);
 
-
-
         // printf("Data : %s", data);
 
         int s_headers = send(new_fd, header, strlen(header), 0);
@@ -134,13 +133,17 @@ int start_server(int port)
         /* Serializing the http body */
 
         int s_body = send(new_fd, response.body, response.content_length, 0);
-        if (s_body < 0)
-        {
-            perror("send");
-            return -1;
-        }
+
+        /* Generating the server log */
+        struct log_entry log;
+        strncpy(log.ip, ip, INET_ADDRSTRLEN);
+        log.ip[INET_ADDRSTRLEN - 1] = '\0';
+        log.method = request.method;
+        log.path = request.path;
+        log.status_code = response.status_code;
+        log.bytes_sent = response.content_length;
+        log_access(&log);
         free(header);
-        free(body);
         free(filepath);
         close(new_fd);
     }
