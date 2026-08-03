@@ -8,6 +8,14 @@
 struct http_request parse_http_request(char *buffer)
 {
     struct http_request request = {0};
+    char *body_start = strstr(buffer, "\r\n\r\n");
+
+    if (body_start != NULL)
+    {
+        request.body = body_start + 4;
+        *body_start = '\0';
+    }
+    printf("Request.body : %s\n", request.body);
 
     /* Parse request line */
     char *line = strtok(buffer, DELIMITER);

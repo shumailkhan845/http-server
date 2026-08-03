@@ -17,6 +17,8 @@ struct http_request
 
     struct http_headers headers[MAX_SIZE];
     int header_count;
+
+    char *body;
 };
 
 

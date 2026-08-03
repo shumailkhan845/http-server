@@ -67,9 +67,9 @@ int start_server(int port)
             return -1;
         }
         inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-        printf("Client IP address: %s\n", ip);
-        printf("Client Port: %d\n", ntohs(client_addr.sin_port));
-        printf("Client Connected\n");
+        // printf("Client IP address: %s\n", ip);
+        // printf("Client Port: %d\n", ntohs(client_addr.sin_port));
+        // printf("Client Connected\n");
 
         // Impelmenting the recv
         char buffer[1024];
@@ -90,7 +90,7 @@ int start_server(int port)
         }
         buffer[recv_result] = '\0';
         // printf("Recv_result %d\n", recv_result);
-        // printf("Recived : %s\n", buffer);
+        printf("Recived : %s\n", buffer);
 
         // Preparing the http request
         struct http_request request = parse_http_request(buffer);
@@ -113,17 +113,24 @@ int start_server(int port)
         }
         printf("File path : %s\n", filepath);
         // Defining the structure of the file.h
-        struct file_data file = {0};
+        // struct file_data file = {0};
+        printf("Reaching body_1 \n");
 
-        file = read_file(filepath);
-        response.body = file.data;
-        response.content_type = get_mime_type(filepath);
-        response.content_length = file.size;
+        // file = read_file(filepath);
+        // response.body = file.data;
+        // response.content_type = get_mime_type(filepath);
+        printf("Reaching body_2 \n");
+
+        // response.content_length = file.size;
         /* Serializing the http headers */
         char *header = serilize_http_header(&response);
 
         // printf("Data : %s", data);
-
+        if (strcmp(request.method, "POST") == 0)
+        {
+            printf("Body : %s\n", request.body);
+            break;
+        }
         int s_headers = send(new_fd, header, strlen(header), 0);
         if (s_headers < 0)
         {
@@ -133,6 +140,8 @@ int start_server(int port)
         /* Serializing the http body */
 
         int s_body = send(new_fd, response.body, response.content_length, 0);
+        // printf("Headers : %s\n", header);
+        printf("Body : %ld\n", response.body);
 
         /* Generating the server log */
         struct log_entry log;
