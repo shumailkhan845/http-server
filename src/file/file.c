@@ -5,13 +5,18 @@
 #include <string.h>
 struct file_data read_file(const char *filepath)
 {
-
+    printf("I am reading the file...1\n\n");
     struct file_data file = {0};
+    printf("I am reading the file...2\n\n");
     FILE *f_ptr = fopen(filepath, "rb");
+    printf("I am reading the file...3\n\n");
+
     if (f_ptr == NULL)
     {
         return file;
     }
+    printf("I am reading the file...3\n\n");
+
     fseek(f_ptr, 0, SEEK_END);
     long file_size = ftell(f_ptr);
     if (file_size < 0)

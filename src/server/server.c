@@ -92,45 +92,61 @@ int start_server(int port)
         // printf("Recv_result %d\n", recv_result);
         printf("Recived : %s\n", buffer);
 
-        // Preparing the http request
+        /* PREPARING THE HTTP REQUEST  */
         struct http_request request = parse_http_request(buffer);
 
         printf("Method : %s\n", request.method);
         printf("Path : %s\n", request.path);
         printf("Request : %s\n", request.version);
 
-        /* Preparing the http response */
-        struct http_response response;
-        const char *filepath = route_request(request.path);
-        if (filepath == NULL)
+        /* IF HTTP REQUEST FAILED */
+        if (request.method == NULL || request.path == NULL || request.version == NULL)
         {
-            filepath = "public/404.html";
-            response = create_http_response(404);
+            continue;
+            // Return 400 Bad Request
+        }
+
+        /* PREPARING THE HTTP RESPONSE  */
+        struct http_response response;
+
+        /* DEFINING THE ROUTER STRUCT FROM ROUTER.H AND HANDLING THE PATH REDIRECTION */
+
+        struct route router;
+        router = route_request(&request);
+        if (router.type == ROUTE_STATIC)
+        {
+            printf("Inside static route \n\n");
+            if (router.filepath == NULL)
+            {
+                router.filepath = "public/404.html";
+                response = create_http_response(404);
+            }
+            else
+            {
+                printf("Inside static route else block\n\n");
+
+                struct file_data file = {0};
+
+                file = read_file(router.filepath);
+                response = create_http_response(200);
+                response.body = file.data;
+
+                response.content_type = get_mime_type(router.filepath);
+
+                response.content_length = file.size;
+            }
         }
         else
         {
-            response = create_http_response(200);
+            printf("Calling dynamic handler...\n");
+            router.handler(&request, &response);
         }
-        printf("File path : %s\n", filepath);
-        // Defining the structure of the file.h
-        // struct file_data file = {0};
-        printf("Reaching body_1 \n");
 
-        // file = read_file(filepath);
-        // response.body = file.data;
-        // response.content_type = get_mime_type(filepath);
-        printf("Reaching body_2 \n");
-
-        // response.content_length = file.size;
-        /* Serializing the http headers */
+        /* SERIALIZING THE HTTP HEADER */
         char *header = serilize_http_header(&response);
 
         // printf("Data : %s", data);
-        if (strcmp(request.method, "POST") == 0)
-        {
-            printf("Body : %s\n", request.body);
-            break;
-        }
+
         int s_headers = send(new_fd, header, strlen(header), 0);
         if (s_headers < 0)
         {
@@ -141,7 +157,7 @@ int start_server(int port)
 
         int s_body = send(new_fd, response.body, response.content_length, 0);
         // printf("Headers : %s\n", header);
-        printf("Body : %ld\n", response.body);
+        // printf("Response Body : %ld\n", response.body);
 
         /* Generating the server log */
         struct log_entry log;
@@ -152,8 +168,10 @@ int start_server(int port)
         log.status_code = response.status_code;
         log.bytes_sent = response.content_length;
         log_access(&log);
+
+        // Freeing and closing the blah blah blah...!!!!!
         free(header);
-        free(filepath);
+        free(router.filepath);
         close(new_fd);
     }
     close(sockfd);
