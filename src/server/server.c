@@ -109,10 +109,11 @@ int start_server(int port)
         /* PREPARING THE HTTP RESPONSE  */
         struct http_response response;
 
-        /* DEFINING THE ROUTER STRUCT FROM ROUTER.H AND HANDLING THE PATH REDIRECTION */
+        /* DEFINING THE ROUTER " STRUCT " FROM ROUTER.H AND HANDLING THE PATH REDIRECTION */
 
         struct route router;
         router = route_request(&request);
+        /* STATIC ROUTE HANDLING */
         if (router.type == ROUTE_STATIC)
         {
             printf("Inside static route \n\n");
@@ -136,6 +137,7 @@ int start_server(int port)
                 response.content_length = file.size;
             }
         }
+        /* DYNAMIC ROUTE HANDLING */
         else
         {
             printf("Calling dynamic handler...\n");
@@ -143,17 +145,17 @@ int start_server(int port)
         }
 
         /* SERIALIZING THE HTTP HEADER */
+
         char *header = serilize_http_header(&response);
 
-        // printf("Data : %s", data);
-
+        /* SENDING HEADER  TO THE CLIENTS*/
         int s_headers = send(new_fd, header, strlen(header), 0);
         if (s_headers < 0)
         {
             perror("send");
             return -1;
         }
-        /* Serializing the http body */
+        /* SENDING BODY TO THE CLIENTS*/
 
         int s_body = send(new_fd, response.body, response.content_length, 0);
         // printf("Headers : %s\n", header);
@@ -169,7 +171,7 @@ int start_server(int port)
         log.bytes_sent = response.content_length;
         log_access(&log);
 
-        // Freeing and closing the blah blah blah...!!!!!
+        // Freeing and closing blah blah blah...!!!!!
         free(header);
         free(router.filepath);
         close(new_fd);
