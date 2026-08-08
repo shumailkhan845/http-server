@@ -18,10 +18,27 @@ char *serilize_http_header(struct http_response *response)
     {
         response->reason_phrase = "OK";
     }
+
+    if(response->status_code == 401)
+    {
+        response->reason_phrase = "Unauthorized";
+    }
+
+    if(response->status_code == 400)
+    {
+        response->reason_phrase = "Bad Request";
+    }
+
+    if(response->status_code == 500)
+    {
+        response->reason_phrase = "Internal Server Error";
+    }
+
     if (response->status_code == 404)
     {
         response->reason_phrase = "Page not found";
     }
+
     char *header = malloc(1024);
     if (header == NULL)
     {

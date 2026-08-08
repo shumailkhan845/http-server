@@ -8,12 +8,12 @@
 struct route route_request(struct http_request *request)
 {
     struct route route = {0};
-    char *filepath = NULL;
+    char *path = NULL;
 
-    filepath = request->path;
+    path = request->path;
 
     /* HANDLING THE DYNAMIC ROUTES */
-    if (strcmp(filepath, "/login") == 0)
+    if (strcmp(path, "/login") == 0)
     {
         route.filepath = NULL;
         route.type = ROUTE_DYNAMIC;
@@ -21,45 +21,36 @@ struct route route_request(struct http_request *request)
 
         return route;
     }
-    if (strcmp(filepath, "/echo") == 0)
+    if (strcmp(path, "/echo") == 0)
     {
         route.filepath = NULL;
         route.type = ROUTE_DYNAMIC;
         route.handler = handle_echo;
+
         return route;
     }
     /* HANDLING THE STATIC ROUTES */
 
-    size_t size = (strlen(PUBLIC_DIR) + strlen(filepath) + 1);
-    printf("Size = %zu\n", size);
-    char *file = malloc(size);
 
+    if (strcmp(path, "/") == 0)
+    {
+        path = "/index.html";
+    }
+
+    size_t size = strlen(PUBLIC_DIR) + strlen(path) + 1;
+
+    char *file = malloc(size);
     if (file == NULL)
     {
         return route;
     }
 
-    if (strcmp(filepath, "/") == 0)
-    {
-        strcpy(file, PUBLIC_DIR);
-        filepath = "/index.html";
-        strcat(file, filepath);
-        route.filepath = file;
-        route.type = ROUTE_STATIC;
-        route.handler = NULL;
+    strcpy(file, PUBLIC_DIR);
+    strcat(file, path);
 
-        return route;
-    }
-    else
-    {
-
-        strcpy(file, PUBLIC_DIR);
-        strcat(file, filepath);
-        route.filepath = file;
-        route.type = ROUTE_STATIC;
-        route.handler = NULL;
-        return route;
-    }
+    route.filepath = file;
+    route.type = ROUTE_STATIC;
+    route.handler = NULL;
 
     return route;
 }

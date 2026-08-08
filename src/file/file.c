@@ -3,20 +3,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 struct file_data read_file(const char *filepath)
 {
-    printf("I am reading the file...1\n\n");
     struct file_data file = {0};
-    printf("I am reading the file...2\n\n");
     FILE *f_ptr = fopen(filepath, "rb");
-    printf("I am reading the file...3\n\n");
 
     if (f_ptr == NULL)
     {
+        file.status = 404;
         return file;
     }
-    printf("I am reading the file...3\n\n");
-
     fseek(f_ptr, 0, SEEK_END);
     long file_size = ftell(f_ptr);
     if (file_size < 0)
@@ -29,7 +26,7 @@ struct file_data read_file(const char *filepath)
     char *content = malloc(file_size + 1);
     if (content == NULL)
     {
-        perror("Memory allocation failed");
+        perror("malloc");
         fclose(f_ptr);
         return file;
     }
@@ -44,6 +41,7 @@ struct file_data read_file(const char *filepath)
     fclose(f_ptr);
     file.data = content;
     file.size = file_size;
+    file.status = 200;
     printf("File size = %ld\n", file_size);
     printf("Bytes read = %zu\n", bytesRead);
     return file;

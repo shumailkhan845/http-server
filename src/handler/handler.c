@@ -8,12 +8,14 @@ void handle_login(struct http_request *request, struct http_response *response)
 {
     printf("Hey Server it is login\n");
     struct form_data data = parse_form(request->body);
+    printf("Field count: %zu\n", data.field_count);
+
     char *username = NULL;
     char *password = NULL;
     size_t i = 0;
     while (i < data.field_count)
     {
-        if (data.fields[i].key != NULL)
+        if (data.fields[i].key == NULL)
         {
             i++;
             continue;
@@ -29,9 +31,12 @@ void handle_login(struct http_request *request, struct http_response *response)
         }
         i++;
     }
+    printf("Username : %s", username);
+    printf("Password : %s", password);
+
     if (username == NULL || password == NULL)
     {
-        response->body = "400 Bad Request";
+        response->body = "400 Bad Request\n";
         size_t len = strlen(response->body);
         response->content_length = len;
         response->content_type = "text/plain";
@@ -41,7 +46,7 @@ void handle_login(struct http_request *request, struct http_response *response)
 
     if (strcmp(username, "admin") == 0 && strcmp(password, "123") == 0)
     {
-        response->body = "Login Successful";
+        response->body = "Login Successful\n";
         size_t len = strlen(response->body);
         response->content_length = len;
         response->content_type = "text/plain";
@@ -51,7 +56,7 @@ void handle_login(struct http_request *request, struct http_response *response)
 
     else
     {
-        response->body = "Invalid username or password";
+        response->body = "Invalid username or password\n";
         size_t len = strlen(response->body);
         response->content_length = len;
         response->content_type = "text/plain";

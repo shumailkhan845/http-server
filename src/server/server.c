@@ -5,6 +5,7 @@
 #include "file/file.h"
 #include "mime/mime.h"
 #include "logger/logger.h"
+#include "error/error.h"
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -116,25 +117,34 @@ int start_server(int port)
         /* STATIC ROUTE HANDLING */
         if (router.type == ROUTE_STATIC)
         {
-            printf("Inside static route \n\n");
+            printf("Inside static route... \n\n");
             if (router.filepath == NULL)
             {
-                router.filepath = "public/404.html";
-                response = create_http_response(404);
+                response = build_error_response(404);
             }
+
             else
             {
-                printf("Inside static route else block\n\n");
 
                 struct file_data file = {0};
-
                 file = read_file(router.filepath);
-                response = create_http_response(200);
-                response.body = file.data;
 
-                response.content_type = get_mime_type(router.filepath);
-
-                response.content_length = file.size;
+                if (file.status == 404)
+                {
+                    response = build_error_response(404);
+                }
+                else if (file.status != 200)
+                {
+                    response = build_error_response(500);
+                }
+                else
+                {
+                    response = create_http_response(200);
+                    
+                    response.body = file.data;
+                    response.content_type = get_mime_type(router.filepath);
+                    response.content_length = file.size;
+                }
             }
         }
         /* DYNAMIC ROUTE HANDLING */
