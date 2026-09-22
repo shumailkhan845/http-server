@@ -8,7 +8,7 @@ void handle_login(struct http_request *request, struct http_response *response)
 {
     printf("Hey Server it is login\n");
     struct form_data data = parse_form(request->body);
-    printf("Field count: %zu\n", data.field_count);
+    printf("Field count: %d\n", data.field_count);
 
     char *username = NULL;
     char *password = NULL;

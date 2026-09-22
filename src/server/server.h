@@ -4,7 +4,9 @@
 
 int start_server(int port);
 
+int send_all(int fd, char *buffer, int size);
 
+int recv_all(int fd, char *buffer, int size);
 
 
 
