@@ -1,13 +1,35 @@
 CC = gcc
+
 CFLAGS = -Wall -Wextra -g -Isrc
-SRC = src/main.c src/server/server.c src/http/http.c src/http/request.c src/http/response.c src/router/router.c src/file/file.c src/mime/mime.c src/logger/logger.c src/handler/handler.c src/form/form.c src/error/error.c
-OUT = http-server
+LDFLAGS = -pthread
+
+SRC = \
+	src/main.c \
+	src/server/server.c \
+	src/http/http.c \
+	src/http/parser.c \
+	src/http/request.c \
+	src/http/response.c \
+	src/router/router.c \
+	src/handler/handler.c \
+	src/file/file.c \
+	src/error/error.c \
+	src/form/form.c \
+	src/logger/logger.c \
+	src/mime/mime.c \
+	src/utils/utils.c
+
+OUT = build/http-server
+
 
 all:
-	$(CC) $(CFLAGS) $(SRC) -o $(OUT)
+	mkdir -p build
+	$(CC) $(CFLAGS) $(SRC) -o $(OUT) $(LDFLAGS)
 
-run:
+
+run: all
 	./$(OUT)
 
+
 clean:
-	rm -f $(OUT)
+	rm -rf build

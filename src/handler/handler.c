@@ -12,7 +12,7 @@ void handle_login(struct http_request *request, struct http_response *response)
 
     char *username = NULL;
     char *password = NULL;
-    size_t i = 0;
+    int i = 0;
     while (i < data.field_count)
     {
         if (data.fields[i].key == NULL)

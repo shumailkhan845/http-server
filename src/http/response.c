@@ -1,63 +1,73 @@
 #include "response.h"
 
-#include <string.h>
 #include <stdio.h>
-#include <stddef.h>
 #include <stdlib.h>
+
 struct http_response create_http_response(int status)
 {
-    struct http_response response;
+    struct http_response response = {0};
 
+    response.version = "HTTP/1.1";
     response.status_code = status;
+
     return response;
 }
 
 char *serilize_http_header(struct http_response *response)
 {
-    if (response->status_code == 200)
+    switch (response->status_code)
     {
+    case 200:
         response->reason_phrase = "OK";
-    }
+        break;
 
-    if(response->status_code == 401)
-    {
-        response->reason_phrase = "Unauthorized";
-    }
-
-    if(response->status_code == 400)
-    {
+    case 400:
         response->reason_phrase = "Bad Request";
-    }
+        break;
 
-    if(response->status_code == 500)
-    {
-        response->reason_phrase = "Internal Server Error";
-    }
+    case 401:
+        response->reason_phrase = "Unauthorized";
+        break;
 
-    if (response->status_code == 404)
-    {
+    case 404:
         response->reason_phrase = "Page not found";
+        break;
+
+    case 405:
+        response->reason_phrase = "Method Not Allowed";
+        break;
+
+    case 500:
+        response->reason_phrase = "Internal Server Error";
+        break;
+
+    default:
+        response->reason_phrase = "Unknown";
+        break;
     }
 
     char *header = malloc(1024);
+
     if (header == NULL)
     {
         perror("malloc");
         return NULL;
     }
 
-    sprintf(
+    snprintf(
         header,
-        "HTTP/1.1 %d %s\r\n"
+        1024,
+        "%s %d %s\r\n"
         "Content-Type: %s\r\n"
         "Content-Length: %zu\r\n"
+        "Connection: close\r\n"
         "\r\n",
+        response->version,
         response->status_code,
         response->reason_phrase,
         response->content_type,
-        response->content_length);
+        response->content_length
+    );
 
     return header;
 }
-
-
